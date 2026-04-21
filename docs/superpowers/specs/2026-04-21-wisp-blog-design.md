@@ -29,16 +29,21 @@ A simple, beautiful static personal notes site built with Astro 4.x and TypeScri
 | Fonts (body/headings) | Georgia, serif stack |
 | Fonts (monospace) | Maple Mono via fontsource CDN |
 | UI framework | None (pure Astro components) |
+| Search | Pagefind (build-time index, ~50 KB client JS) |
+| Math rendering | `remark-math` + `rehype-katex` + KaTeX CSS CDN |
+| Diagram rendering | Mermaid.js via CDN (client-side, same approach as source mdBook) |
+| Comments | Cusdis hosted (cusdis.com free tier) — anonymous, optional name |
 | Deployment | Static (`output: 'static'`) |
 
 ## Layout
 
 Single-column layout. Top nav contains the site title on the left and section links + theme toggle on the right. All content is centered with a max-width of ~680px. Section links in the nav are anchor links (`/#about`, `/#independent-study`, `/#mscs`) that jump to the corresponding section heading on the index page — no client-side routing or JS filtering needed.
 
-Two page types:
+Three page types:
 
-1. **Index (`/`)** — lists all articles grouped by section (About, Independent Study, MSCS), each showing title, section label, reading time, and a one-sentence excerpt.
-2. **Article (`/[slug]`)** — full article content, same nav, reading time shown below the title.
+1. **Index (`/`, `/2/`, `/3/`, …)** — paginated list of articles grouped by section (About, Independent Study, MSCS), 10 per page. Each card shows title, section label, reading time, and a one-sentence excerpt. A search bar (Pagefind UI) sits at the top of the index.
+2. **Article (`/[slug]`)** — full article content, same nav, reading time below the title, KaTeX math and Mermaid diagrams rendered, Cusdis comment widget at the bottom.
+3. **Search results** — Pagefind provides its own results overlay/page; no custom page needed.
 
 ## Visual Design
 
@@ -116,30 +121,60 @@ src/
     articles/          ← imported + frontmatter-annotated markdown
     config.ts          ← Zod schema with readingTime derived field
   layouts/
-    Base.astro         ← <html>, theme inline script, global CSS link, Maple Mono CDN link
-    Article.astro      ← wraps Base, adds article-specific layout
+    Base.astro         ← <html>, theme inline script, global CSS, CDN links
+    Article.astro      ← wraps Base; article layout, Cusdis widget at bottom
   components/
-    Nav.astro          ← site title + section links + ThemeToggle
+    Nav.astro          ← site title + section links + ThemeToggle + search trigger
     ThemeToggle.astro  ← ◐/◑ button; reads/writes localStorage
     ArticleList.astro  ← groups articles by section, renders ArticleCard list
     ArticleCard.astro  ← title, section label, reading time, excerpt
+    Comments.astro     ← Cusdis embed (script tag + div, page-id = slug)
+    Search.astro       ← Pagefind UI widget
   pages/
-    index.astro        ← imports ArticleList
-    [slug].astro       ← renders article via Article layout
+    index.astro        ← page 1 of paginated index (Search + ArticleList)
+    [page].astro       ← pages 2…N via getStaticPaths pagination
+    [slug].astro       ← article view (Article layout)
   styles/
-    global.css         ← CSS custom properties, reset, typography, theme
-astro.config.mjs
-package.json           ← pnpm, Astro, TypeScript
+    global.css         ← CSS custom properties, reset, typography, theme, Pagefind overrides
+astro.config.mjs       ← markdown plugins: remark-math, rehype-katex
+package.json           ← pnpm, Astro, TypeScript, remark-math, rehype-katex
 tsconfig.json
 ```
+
+## Feature Notes
+
+### Search (Pagefind)
+
+Pagefind runs as a post-build step (`pagefind --site dist`), generating a search index inside `dist/pagefind/`. The `Search.astro` component loads the Pagefind default UI. Index size scales with content volume; for this site (< 100 articles) it will be under 1 MB. The Pagefind UI CSS is overridden in `global.css` to match the site's warm palette.
+
+### Pagination
+
+The index is paginated at 10 articles per page using Astro's `paginate()` helper in `getStaticPaths`. Page 1 is served at `/`, subsequent pages at `/2/`, `/3/`, etc. Prev/next links rendered at the bottom of `ArticleList.astro`.
+
+### KaTeX
+
+`remark-math` parses `$...$` (inline) and `$$...$$` (block) math fences. `rehype-katex` renders them to HTML at build time — zero client JS. KaTeX CSS loaded from CDN in `Base.astro`:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+```
+
+### Mermaid
+
+Mermaid diagrams are rendered client-side. ` ```mermaid ` fences in markdown pass through as `<pre><code class="language-mermaid">` blocks. A small inline script in `Article.astro` loads `mermaid.min.js` from CDN and calls `mermaid.initialize()` on page load — identical to the source mdBook approach.
+
+### Comments (Cusdis)
+
+`Comments.astro` embeds the Cusdis widget using the hosted script and a `data-page-id` set to the article slug, ensuring comments are per-article. Anonymous posting is supported; name field is optional. The `CUSDIS_APP_ID` is stored in an Astro env variable (`PUBLIC_CUSDIS_APP_ID`) so it can be set at build time without hardcoding.
 
 ## Build Output Constraints
 
 - `output: 'static'` in `astro.config.mjs`
 - No images in source content (text-only articles)
-- No bundled font files (Maple Mono via CDN)
+- No bundled font files (Maple Mono via CDN); KaTeX CSS via CDN
 - No UI framework JS (React/Vue/Svelte)
-- Expected `dist/` size: < 5 MB (HTML + CSS only)
+- Pagefind index: < 1 MB for current content volume
+- Expected `dist/` size: < 10 MB total
 - Constraint ceiling: total < 300 MB, no single file ≥ 100 MB (trivially met)
 
 ## Extending the Site
@@ -154,10 +189,6 @@ No code changes required.
 
 ## Out of Scope
 
-- Search
-- Pagination
-- Comments
 - RSS feed
 - Analytics
-- KaTeX / Mermaid rendering (present in source mdBook but not in scope for v1)
 - Syncing from the notes submodule (content is imported once; updates are manual)
