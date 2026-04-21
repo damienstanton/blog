@@ -32,6 +32,7 @@ A simple, beautiful static personal notes site built with Astro 4.x and TypeScri
 | Search | Pagefind (build-time index, ~50 KB client JS) |
 | Math rendering | `remark-math` + `rehype-katex` + KaTeX CSS CDN |
 | Diagram rendering | Mermaid.js via CDN (client-side, same approach as source mdBook) |
+| Syntax highlighting | Shiki (Astro built-in, build-time, zero client JS) |
 | Comments | Cusdis hosted (cusdis.com free tier) — anonymous, optional name |
 | Deployment | Static (`output: 'static'`) |
 
@@ -162,6 +163,18 @@ The index is paginated at 10 articles per page using Astro's `paginate()` helper
 ### Mermaid
 
 Mermaid diagrams are rendered client-side. ` ```mermaid ` fences in markdown pass through as `<pre><code class="language-mermaid">` blocks. A small inline script in `Article.astro` loads `mermaid.min.js` from CDN and calls `mermaid.initialize()` on page load — identical to the source mdBook approach.
+
+### Syntax Highlighting (Shiki)
+
+Shiki is Astro's built-in highlighter — no extra package needed. It renders highlighted HTML at build time; zero client JS. Configured in `astro.config.mjs` with dual themes that complement the warm scholarly palette:
+
+```js
+shikiConfig: {
+  themes: { light: 'rose-pine-dawn', dark: 'rose-pine-moon' },
+}
+```
+
+Languages explicitly confirmed in scope: Python, Rust, Lean 4 (`lean4`), Haskell, Swift, C, GDScript (`gdscript`), F# (`fsharp`), C++. All are included in Shiki's default language bundle — no extra grammar files needed.
 
 ### Comments (Cusdis)
 
