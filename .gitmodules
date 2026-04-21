@@ -1,0 +1,3 @@
+[submodule ".claude/context/notes"]
+	path = .claude/context/notes
+	url = https://github.com/damienstanton/notes
