@@ -1,0 +1,20 @@
+---
+---
+
+<div class="search-wrapper">
+  <div id="search"></div>
+</div>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', function () {
+    if (typeof window.PagefindUI !== 'undefined') {
+      new window.PagefindUI({
+        element: '#search',
+        showSubResults: false,
+        resetStyles: false,
+      });
+    }
+  });
+</script>
