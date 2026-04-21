@@ -1,0 +1,71 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ArticleCard from './ArticleCard.astro';
+import { readingTime, SECTIONS, type Section } from '@/lib/articles';
+
+interface Props {
+  articles: CollectionEntry<'articles'>[];
+  currentPage: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+const { articles, currentPage, totalPages, hasNext, hasPrev } = Astro.props;
+
+const grouped: Record<Section, CollectionEntry<'articles'>[]> = {
+  About: [],
+  'Independent Study': [],
+  MSCS: [],
+};
+for (const article of articles) {
+  grouped[article.data.section].push(article);
+}
+
+const sectionIds: Record<Section, string> = {
+  About: 'about',
+  'Independent Study': 'independent-study',
+  MSCS: 'mscs',
+};
+---
+
+{
+  SECTIONS.map((section) =>
+    grouped[section].length > 0 ? (
+      <section>
+        <h2 class="section-heading" id={sectionIds[section]}>
+          {section}
+        </h2>
+        {grouped[section].map((article) => (
+          <ArticleCard
+            title={article.data.title}
+            slug={article.slug}
+            section={article.data.section}
+            readingTime={readingTime(article.body)}
+            description={article.data.description}
+          />
+        ))}
+      </section>
+    ) : null,
+  )
+}
+
+{
+  totalPages > 1 && (
+    <nav class="pagination" aria-label="Page navigation">
+      <span>
+        {hasPrev ? (
+          <a href={currentPage === 2 ? '/' : `/${currentPage - 1}/`}>← Previous</a>
+        ) : (
+          <span />
+        )}
+      </span>
+      <span>
+        Page {currentPage} of {totalPages}
+      </span>
+      <span>
+        {hasNext ? <a href={`/${currentPage + 1}/`}>Next →</a> : <span />}
+      </span>
+    </nav>
+  )
+}
