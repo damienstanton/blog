@@ -1,0 +1,24 @@
+---
+interface Props {
+  slug: string;
+  title: string;
+  url: string;
+}
+
+const { slug, title, url } = Astro.props;
+const appId = import.meta.env.PUBLIC_CUSDIS_APP_ID;
+---
+
+<div class="comments-section">
+  <p class="comments-heading">Comments</p>
+  <div
+    id="cusdis_thread"
+    data-host="https://cusdis.com"
+    data-app-id={appId}
+    data-page-id={slug}
+    data-page-url={url}
+    data-page-title={title}
+  >
+  </div>
+  <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
+</div>

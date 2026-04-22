@@ -1,0 +1,44 @@
+---
+import Base from './Base.astro';
+import Comments from '@/components/Comments.astro';
+
+interface Props {
+  title: string;
+  section: string;
+  readingTime: number;
+  description?: string;
+  slug: string;
+}
+
+const { title, section, readingTime, description, slug } = Astro.props;
+const url = new URL(`/${slug}`, Astro.site ?? Astro.url.origin).toString();
+---
+
+<Base title={title} description={description}>
+  <article>
+    <header class="article-header">
+      <p class="article-section-label">{section}</p>
+      <h1 class="article-title">{title}</h1>
+      <p class="article-reading-time">{readingTime} min read</p>
+    </header>
+
+    <div class="article-body">
+      <slot />
+    </div>
+
+    <Comments slug={slug} title={title} url={url} />
+  </article>
+</Base>
+
+<!-- Mermaid: only loads if page contains .mermaid divs -->
+<script type="module">
+  const hasMermaid = document.querySelector('.mermaid');
+  if (hasMermaid) {
+    const { default: mermaid } = await import(
+      'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'
+    );
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' });
+    await mermaid.run({ querySelector: '.mermaid' });
+  }
+</script>
