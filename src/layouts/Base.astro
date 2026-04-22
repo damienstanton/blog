@@ -20,10 +20,16 @@ const { title, description = 'DS Notes — personal notes on computer science an
 
     <script is:inline>
       (function () {
-        const stored = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const theme = stored ?? (prefersDark ? 'dark' : 'light');
+        var stored = localStorage.getItem('theme');
+        var mql = window.matchMedia('(prefers-color-scheme: dark)');
+        var theme = stored !== null ? stored : (mql.matches ? 'dark' : 'light');
         document.documentElement.setAttribute('data-theme', theme);
+        // Keep in sync if OS preference changes and user hasn't manually overridden
+        mql.addEventListener('change', function (e) {
+          if (localStorage.getItem('theme') === null) {
+            document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+          }
+        });
       })();
     </script>
 

@@ -117,22 +117,14 @@ pre code {
 }
 
 /* ── Shiki dual-theme switching ── */
-.astro-code,
-.astro-code span {
-  color: var(--shiki-light) !important;
-  background-color: var(--shiki-light-bg) !important;
-  font-style: var(--shiki-light-font-style) !important;
-  font-weight: var(--shiki-light-font-weight) !important;
-  text-decoration: var(--shiki-light-text-decoration) !important;
+/* Light mode: Shiki writes color/background directly as inline styles — no override needed */
+/* Dark mode: Shiki emits --shiki-dark and --shiki-dark-bg as CSS custom properties */
+[data-theme='dark'] .astro-code {
+  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark) !important;
 }
-
-[data-theme='dark'] .astro-code,
 [data-theme='dark'] .astro-code span {
   color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
-  font-style: var(--shiki-dark-font-style) !important;
-  font-weight: var(--shiki-dark-font-weight) !important;
-  text-decoration: var(--shiki-dark-text-decoration) !important;
 }
 
 /* ── Mermaid diagrams ── */
@@ -313,6 +305,27 @@ nav {
 
 .article-body { margin-top: 0; }
 
+/* Code blocks break out of the 680px text column to fill available space */
+.article-body pre {
+  /* Expand to the wider of: (viewport − gutter) or 960px cap */
+  width: min(calc(100vw - 2.5rem), 960px);
+  max-width: none;
+  /* Shift left so the wider block stays centered over the text column.
+     640px = --max-width (680) minus both side paddings (2×20px). */
+  margin-left: calc(
+    (min(calc(100vw - 2.5rem), 640px) - min(calc(100vw - 2.5rem), 960px)) / 2
+  );
+  margin-right: 0;
+}
+
+/* Tables should also scroll horizontally rather than overflow */
+.article-body table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
 /* ── Pagination ── */
 .pagination {
   display: flex;
@@ -357,3 +370,41 @@ nav {
   color: var(--text-muted);
   margin-bottom: 1.25rem;
 }
+
+/* ── Responsive ── */
+@media (max-width: 680px) {
+  html { font-size: 16px; }
+
+  .nav-inner { gap: 0.5rem; }
+
+  .nav-links {
+    gap: 0;
+  }
+
+  .nav-links a {
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.3rem;
+  }
+
+  .article-title { font-size: 1.4rem; }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+
+  main {
+    padding-top: calc(var(--nav-height) + 1.25rem);
+    padding-bottom: 3rem;
+  }
+}
+
+@media (max-width: 420px) {
+  html { font-size: 15px; }
+
+  .nav-title { font-size: 0.9rem; }
+
+  .nav-links a { padding: 0.2rem 0.25rem; }
+}
+
+/* Prevent any element from causing horizontal page scroll */
+html { overflow-x: hidden; }
