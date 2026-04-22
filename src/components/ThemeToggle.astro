@@ -6,7 +6,9 @@
 </button>
 
 <script>
-  const btn = document.getElementById('theme-toggle')!;
+  const btnEl = document.getElementById('theme-toggle');
+  if (!btnEl) return;
+  const btn: HTMLElement = btnEl;
   const html = document.documentElement;
 
   function getTheme(): string {
@@ -16,7 +18,10 @@
   function setTheme(theme: string) {
     html.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+    btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
   }
+
+  btn.setAttribute('aria-label', getTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
 
   btn.addEventListener('click', () => {
     setTheme(getTheme() === 'dark' ? 'light' : 'dark');

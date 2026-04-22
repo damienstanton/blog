@@ -41,7 +41,7 @@ const sectionIds: Record<Section, string> = {
             title={article.data.title}
             slug={article.slug}
             section={article.data.section}
-            readingTime={readingTime(article.body)}
+            readingTime={readingTime(article.body ?? '')}
             description={article.data.description}
           />
         ))}
