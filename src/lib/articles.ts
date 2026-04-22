@@ -1,11 +1,11 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
-export const SECTIONS = ['About', 'Independent Study', 'MSCS'] as const;
+export const SECTIONS = ['Personal', 'Independent Study', 'MSCS'] as const;
 export type Section = (typeof SECTIONS)[number];
 export const PER_PAGE = 10;
 
 const SECTION_ORDER: Record<Section, number> = {
-  About: 0,
+  'Personal': 0,
   'Independent Study': 1,
   MSCS: 2,
 };

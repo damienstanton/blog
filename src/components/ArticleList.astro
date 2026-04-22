@@ -14,7 +14,7 @@ interface Props {
 const { articles, currentPage, totalPages, hasNext, hasPrev } = Astro.props;
 
 const grouped: Record<Section, CollectionEntry<'articles'>[]> = {
-  About: [],
+  Personal: [],
   'Independent Study': [],
   MSCS: [],
 };
@@ -23,7 +23,7 @@ for (const article of articles) {
 }
 
 const sectionIds: Record<Section, string> = {
-  About: 'about',
+  Personal: 'personal',
   'Independent Study': 'independent-study',
   MSCS: 'mscs',
 };
@@ -36,15 +36,16 @@ const sectionIds: Record<Section, string> = {
         <h2 class="section-heading" id={sectionIds[section]}>
           {section}
         </h2>
-        {grouped[section].map((article) => (
-          <ArticleCard
-            title={article.data.title}
-            slug={article.slug}
-            section={article.data.section}
-            readingTime={readingTime(article.body ?? '')}
-            description={article.data.description}
-          />
-        ))}
+        <div class="section-cards">
+          {grouped[section].map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              slug={article.slug}
+              readingTime={readingTime(article.body ?? '')}
+              description={article.data.description}
+            />
+          ))}
+        </div>
       </section>
     ) : null,
   )

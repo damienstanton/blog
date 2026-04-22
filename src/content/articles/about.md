@@ -1,6 +1,6 @@
 ---
-title: "About"
-section: "About"
+title: "What is this site?"
+section: "Personal"
 description: "A loosely collected set of notes on computer science and related fields."
 ---
 ## 👋 Hello, I'm Damien

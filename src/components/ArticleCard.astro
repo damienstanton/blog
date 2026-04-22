@@ -2,16 +2,15 @@
 interface Props {
   title: string;
   slug: string;
-  section: string;
   readingTime: number;
   description?: string;
 }
 
-const { title, slug, section, readingTime, description } = Astro.props;
+const { title, slug, readingTime, description } = Astro.props;
 ---
 
-<article class="article-card">
-  <a href={`/${slug}`} class="article-card-title">{title}</a>
-  <div class="article-card-meta">{section} · {readingTime} min read</div>
+<a href={`/${slug}`} class="article-card">
+  <div class="article-card-title">{title}</div>
+  <div class="article-card-meta">{readingTime} min read</div>
   {description && <p class="article-card-excerpt">{description}</p>}
-</article>
+</a>
