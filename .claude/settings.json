@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[hook] File modified — consider running format/lint from profile toolchain'"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allowed_for_session": [
+      ".claude/state/**",
+      ".claude/artifacts/**",
+      ".claude/artifacts-archive/**",
+      ".claude/features/**"
+    ]
+  }
+}
+

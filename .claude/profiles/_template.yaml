@@ -1,0 +1,277 @@
+# =============================================================================
+# Project Profile Template
+# =============================================================================
+# Copy this file to .claude/profiles/<your-project>.yaml and fill in the values.
+# See .claude/specs/project-profile-schema.md for the full schema specification.
+#
+# All agents in .claude/agents/ read this profile at initialization to
+# determine language-specific toolchain commands, governance policies,
+# and review configuration.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Identity — What is this project?
+# -----------------------------------------------------------------------------
+identity:
+  project_name: ""          # e.g., "my-service", "data-pipeline"
+  language: ""              # Primary language: Rust | Python | TypeScript | Go | C | C++
+  runtime: ""               # native | vm | interpreted | browser
+  description: ""           # One-sentence project description
+
+# -----------------------------------------------------------------------------
+# 2. Layout — Where are things?
+# -----------------------------------------------------------------------------
+layout:
+  context_dir: ".claude/context"  # Reference material (docs, examples, submodules)
+  src_paths:                # Source code directories (relative to project root)
+    - "src/"
+  test_paths:               # Test directories
+    - "tests/"
+  doc_paths:                # Documentation directories
+    - "docs/"
+    - "README.md"
+  task_todo_dir: ".claude/features/todo"
+  task_completed_dir: ".claude/features/completed"
+  tracker_file: ".claude/features/ticket_tracker.md"
+  artifacts_dir: ".claude/artifacts"
+
+# -----------------------------------------------------------------------------
+# 3. Toolchain — How do we build, test, lint, format?
+# -----------------------------------------------------------------------------
+# Replace these with your project's actual commands.
+# Agents use these tokens: {{toolchain.test_cmd_full}}, {{toolchain.lint_cmd}}, etc.
+toolchain:
+  # Pre-flight validation (runs before any implementation)
+  precheck_cmd: ""          # e.g., "cargo check", "python -m py_compile src/", "tsc --noEmit"
+
+  # Package installation
+  package_install_cmd: ""   # e.g., "cargo build", "pip install -e '.[dev]'", "npm install"
+
+  # Testing
+  test_cmd_full: ""         # e.g., "cargo test --all", "pytest tests/ -v", "npm test"
+  test_cmd_targeted: ""     # e.g., "cargo test {target}", "pytest {target} -v", "npx jest {target}"
+  test_output_format: ""    # cargo_json | pytest_json | go_test | jest_json | junit_xml
+  test_framework: ""        # e.g., "cargo-test", "pytest", "jest", "go-test"
+
+  # Code quality
+  format_cmd: ""            # e.g., "cargo fmt --all", "ruff format .", "prettier --write ."
+  lint_cmd: ""              # e.g., "cargo clippy -- -D warnings", "ruff check .", "eslint ."
+
+# -----------------------------------------------------------------------------
+# 4. Governance — What are the quality policies?
+# -----------------------------------------------------------------------------
+governance:
+  # Test policies
+  skip_policy: "fail"       # How to treat skipped tests: fail | warn | allow
+  xfail_policy: "warn"     # How to treat expected failures: fail | warn | allow
+
+  # Fix iteration limits
+  max_fix_iterations: 3     # Max attempts to fix a failing test/lint issue per step
+
+  # Auto-fix rules (used by triager agent)
+  autofix_confidence_threshold: 0.7
+  autofix_confidence_rules:
+    # confidence >= 0.9 AND risk == "low"  → Apply automatically
+    # confidence >= 0.7 AND risk == "low"  → Ask user confirmation
+    # Otherwise                             → Log as suggestion only
+    auto_apply_min_confidence: 0.9
+    user_confirm_min_confidence: 0.7
+    max_risk_for_auto: "low"
+
+# -----------------------------------------------------------------------------
+# 5. Review Graph — How do review agents run?
+# -----------------------------------------------------------------------------
+# Defines which review agents run, in what order, with what models.
+# Default: 3 batches (correctness, then quality + docs, then extended).
+review_graph:
+  merge_strategy: "highest_severity"  # How to deduplicate: highest_severity | union | first_seen
+
+  agents:
+    - id: "review-correctness-defensive"
+      model: ""             # Override model, or leave blank for agent default
+      blocking: true
+    - id: "review-correctness-specification"
+      model: ""
+      blocking: true
+    - id: "review-quality-structural"
+      model: ""
+      blocking: false
+    - id: "review-quality-evolutionary"
+      model: ""
+      blocking: false
+    - id: "review-docs-consistency"
+      model: ""
+      blocking: false
+    - id: "review-error-surface"
+      model: ""
+      blocking: false
+    - id: "review-operations-hygiene"
+      model: ""
+      blocking: false
+    - id: "review-test-quality"
+      model: ""
+      blocking: false
+
+  batches:
+    - name: "correctness"
+      agents: ["review-correctness-defensive", "review-correctness-specification"]
+      parallel: true
+      blocking: true        # If critical/high findings, workflow blocks
+    - name: "quality"
+      agents: ["review-quality-structural", "review-quality-evolutionary", "review-docs-consistency"]
+      parallel: true
+      blocking: false       # Advisory only
+    - name: "extended"
+      agents: ["review-error-surface", "review-operations-hygiene", "review-test-quality"]
+      parallel: true
+      blocking: false       # Advisory — error handling, ops hygiene, test quality
+
+# -----------------------------------------------------------------------------
+# 6. Lifecycle — Task management
+# -----------------------------------------------------------------------------
+lifecycle:
+  ticket_states: ["todo", "refined", "in_progress", "blocked", "done"]
+  required_fields: ["title", "description", "acceptance_criteria"]
+  definition_of_done:
+    - "All acceptance criteria met with evidence"
+    - "All tests pass (per governance policy)"
+    - "Code formatted and linted"
+    - "Review findings resolved or acknowledged"
+    - "Example objects exist for all new components (when extensions.moldable.enabled)"
+    - "FFI boundary conformance tests pass (when extensions.component_model.enabled)"
+    - "Hot-reload smoke examples pass after state migration (when extensions.hot_reload.enabled)"
+
+# -----------------------------------------------------------------------------
+# 7. Execution — Agent orchestration mode
+# -----------------------------------------------------------------------------
+execution:
+  mode: "monolithic"        # monolithic (single agent) | supervisor (multi-agent delegation)
+  delegation_strategy: "phase_level"  # phase_level | step_level (only for supervisor mode)
+
+# -----------------------------------------------------------------------------
+# 8. Extensions — Optional capabilities
+# -----------------------------------------------------------------------------
+# Uncomment and configure sections as needed.
+
+# extensions:
+#   # Polyglot / Diplomat FFI configuration
+#   polyglot:
+#     enabled: false
+#     core_language: "rust"
+#     diplomat:
+#       tool_path: "diplomat-tool"
+#       config_path: "diplomat.toml"
+#       output_path: "bindings/"
+#     component_layers:
+#       - layer: "core"
+#         language: "rust"
+#         directory: "core/"
+#         agent: "rust_core"
+#       # - layer: "desktop"            # Tauri desktop (macOS, Windows, Linux)
+#       #   language: "rust+typescript"
+#       #   directory: "desktop/"
+#       #   agent: "tauri_desktop"
+#       #   optional: true
+#       # - layer: "mobile"             # Tauri mobile (iOS, Android, visionOS via iPad compat)
+#       #   language: "rust+typescript"
+#       #   directory: "mobile/"
+#       #   agent: "tauri_mobile"
+#       #   optional: true
+#       # - layer: "embedded"           # C/C++ embedded systems
+#       #   language: "c"
+#       #   directory: "embedded/"
+#       #   agent: "c_embedded"
+#       #   optional: true
+#     build_order: []
+#     validation:
+#       vertical_completeness:
+#         required_layers: []
+#         optional_layers: []
+#       ffi_soundness:
+#         check_command: ""
+#         enforce: true
+#
+#   # CI configuration
+#   ci:
+#     matrix_os: []
+#     platform_conditional: {}
+#
+#   # Observability — REDACTED Telemetry
+#   # See .claude/specs/observability-standard.md for full instrumentation specification.
+#   observability:
+#     enabled: true                         # Enable REDACTED observability
+#     provider: "agentaware"                # agentaware | langfuse_direct | none
+#     spec_version: "1.1.0"                # REDACTED specification version
+#
+#     # Langfuse connection
+#     # Environment variables take precedence: LANGFUSE_HOST, LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY
+#     langfuse:
+#       host: ""                            # Langfuse server URL
+#       public_key: ""                      # Langfuse public API key
+#       secret_key: ""                      # Langfuse secret API key
+#
+#     # Identity (REDACTED SPEC section 2.3-2.4)
+#     identity:
+#       app_id: ""                          # Service-level identifier (defaults to project_name)
+#       agent_id: ""                        # Default agent_id (subagents override)
+#
+#     # Sensitivity classification (REDACTED SPEC section 2.6)
+#     # Tiers: PUBLIC | INTERNAL | CONFIDENTIAL | HIGHLY_CONFIDENTIAL
+#     # Labels: PII, FINANCIAL, REGULATORY, CLIENT, STAFF, SOURCE_CODE, CREDENTIAL, HEALTH, etc.
+#     sensitivity:
+#       default_type: "INTERNAL"            # Default sensitivity tier for all spans
+#       default_labels: []                  # e.g., ["SOURCE_CODE"]
+#
+#     # Data governance compliance metadata
+#     # Required for retriever spans accessing data systems
+#     cdo:
+#       enabled: false                      # Enable data governance metadata capture
+#       default_operation: "read"           # Default operation type: read | write
+#
+#     # Compliance enforcement
+#     # Maps to AA_COMPLIANCE_MODE environment variable
+#     compliance:
+#       mode: "warn"                        # warn | error | off
+#
+#   # UI component library preference for the typescript-ui agent.
+#   # When configured, the agent prefers the specified library's components
+#   # over raw HTML elements for standard UI patterns.
+#   ui_framework:
+#     name: "mui"                              # mui | chakra | radix | none
+#     context_path: ".claude/context/ui-framework"
+#     component_import_prefix: "@mui/material"
+#     style_import: ""
+#
+#   # Moldable Design Canvas (see specs/moldable-canvas.md)
+#   moldable:
+#     enabled: false
+#     inspectability_protocol: true      # Enable cross-language inspectability protocol
+#     example_object_paths:             # Directories where example objects are stored
+#       - "tests/examples/"
+#     runtime_value_store:
+#       enabled: false                  # Enable persistent runtime value store
+#       backend: "filesystem"           # Storage backend (filesystem | database)
+#       path: ".claude/artifacts/runtime-values"
+#     workbench:
+#       contextual_playground: true     # Enable Python REPL bound to selected objects
+#       promote_to_tool: true           # Enable "promote to tool" workflow
+#
+#   # Tiered Hot-Reload Strategy (see specs/hot-reload.md)
+#   hot_reload:
+#     enabled: false
+#     tiers:
+#       ui: "hmr"                       # Tier 0: TypeScript HMR (hmr | full_reload)
+#       agentic: "process_restart"      # Tier 1: Python restart with state restore
+#       core: "out_of_process"         # Tier 2: Rust reload (out_of_process | dylib | wasm)
+#     snapshot_cmd: "{{component}}_snapshot"    # Command template for state snapshot
+#     restore_cmd: "{{component}}_restore"       # Command template for state restore
+#     quiescence_timeout_ms: 5000       # Max wait for in-flight requests to drain
+#     migration_function_path: "migrations/"    # Directory containing migration functions
+#
+#   # Full-Stack Component Model (see specs/component-model.md)
+#   component_model:
+#     enabled: false
+#     interface_versioning: true        # Require interface_hash + semver on exported APIs
+#     interface_hash_algorithm: "sha256"   # Hash algorithm for interface versioning
+#     conformance_test_generation: true # Auto-generate round-trip conformance tests
+#     evidence_artifact_dir: ".claude/artifacts/evidence"  # Directory for evidence artifacts

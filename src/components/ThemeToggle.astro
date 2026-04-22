@@ -7,23 +7,24 @@
 
 <script>
   const btnEl = document.getElementById('theme-toggle');
-  if (!btnEl) return;
-  const btn: HTMLElement = btnEl;
-  const html = document.documentElement;
+  if (btnEl) {
+    const btn: HTMLElement = btnEl;
+    const html = document.documentElement;
 
-  function getTheme(): string {
-    return html.getAttribute('data-theme') ?? 'light';
+    function getTheme(): string {
+      return html.getAttribute('data-theme') ?? 'light';
+    }
+
+    function setTheme(theme: string) {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+
+    btn.setAttribute('aria-label', getTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+
+    btn.addEventListener('click', () => {
+      setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+    });
   }
-
-  function setTheme(theme: string) {
-    html.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-  }
-
-  btn.setAttribute('aria-label', getTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-
-  btn.addEventListener('click', () => {
-    setTheme(getTheme() === 'dark' ? 'light' : 'dark');
-  });
 </script>
