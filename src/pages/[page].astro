@@ -1,0 +1,30 @@
+---
+import Base from '@/layouts/Base.astro';
+import ArticleList from '@/components/ArticleList.astro';
+import Search from '@/components/Search.astro';
+import { getSortedArticles, paginateArticles, PER_PAGE } from '@/lib/articles';
+
+export async function getStaticPaths() {
+  const articles = await getSortedArticles();
+  const totalPages = Math.ceil(articles.length / PER_PAGE);
+  if (totalPages <= 1) return [];
+  return Array.from({ length: totalPages - 1 }, (_, i) => ({
+    params: { page: String(i + 2) },
+  }));
+}
+
+const pageNum = Number(Astro.params.page);
+const allArticles = await getSortedArticles();
+const { articles, totalPages, hasNext, hasPrev } = paginateArticles(allArticles, pageNum);
+---
+
+<Base title={`Notes — Page ${pageNum}`}>
+  <Search />
+  <ArticleList
+    articles={articles}
+    currentPage={pageNum}
+    totalPages={totalPages}
+    hasNext={hasNext}
+    hasPrev={hasPrev}
+  />
+</Base>

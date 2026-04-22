@@ -1,0 +1,20 @@
+---
+import Base from '@/layouts/Base.astro';
+import ArticleList from '@/components/ArticleList.astro';
+import Search from '@/components/Search.astro';
+import { getSortedArticles, paginateArticles } from '@/lib/articles';
+
+const allArticles = await getSortedArticles();
+const { articles, totalPages, hasNext } = paginateArticles(allArticles, 1);
+---
+
+<Base title="Notes">
+  <Search />
+  <ArticleList
+    articles={articles}
+    currentPage={1}
+    totalPages={totalPages}
+    hasNext={hasNext}
+    hasPrev={false}
+  />
+</Base>
