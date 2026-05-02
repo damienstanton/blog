@@ -4,12 +4,22 @@ import ThemeToggle from './ThemeToggle.astro';
 
 <nav aria-label="Site navigation">
   <div class="nav-inner">
-    <a href="/" class="nav-title">DS Notes</a>
-    <ul class="nav-links">
-      <li><a href="/#personal">Personal</a></li>
-      <li><a href="/#independent-study">Study</a></li>
-      <li><a href="/#mscs">MSCS</a></li>
-      <li><ThemeToggle /></li>
-    </ul>
+    <a href="/" class="nav-title">Synthetic Horizons</a>
+    <div class="nav-search" id="nav-search" role="search" aria-label="Search articles"></div>
+    <ThemeToggle />
   </div>
 </nav>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', function () {
+    if (typeof window.PagefindUI !== 'undefined') {
+      new window.PagefindUI({
+        element: '#nav-search',
+        showSubResults: false,
+        resetStyles: false,
+      });
+    }
+  });
+</script>

@@ -1,7 +1,6 @@
 ---
 import Base from '@/layouts/Base.astro';
 import ArticleList from '@/components/ArticleList.astro';
-import Search from '@/components/Search.astro';
 import { getSortedArticles, paginateArticles, PER_PAGE } from '@/lib/articles';
 
 export async function getStaticPaths() {
@@ -19,7 +18,6 @@ const { articles, totalPages, hasNext, hasPrev } = paginateArticles(allArticles,
 ---
 
 <Base title={`Notes — Page ${pageNum}`}>
-  <Search />
   <ArticleList
     articles={articles}
     currentPage={pageNum}

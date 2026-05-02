@@ -1,15 +1,16 @@
 ---
-import Base from '@/layouts/Base.astro';
-import ArticleList from '@/components/ArticleList.astro';
-import Search from '@/components/Search.astro';
-import { getSortedArticles, paginateArticles } from '@/lib/articles';
+import Base from "@/layouts/Base.astro";
+import ArticleList from "@/components/ArticleList.astro";
+import { getSortedArticles, paginateArticles } from "@/lib/articles";
 
 const allArticles = await getSortedArticles();
 const { articles, totalPages, hasNext } = paginateArticles(allArticles, 1);
 ---
 
 <Base title="Notes">
-  <Search />
+  <div style="text-align: center;">
+    <img src="/pfp_round.png" />
+  </div>
   <ArticleList
     articles={articles}
     currentPage={1}

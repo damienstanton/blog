@@ -163,6 +163,7 @@ nav {
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
+  overflow: visible;
 }
 
 .nav-inner {
@@ -187,28 +188,6 @@ nav {
 }
 .nav-title:hover { text-decoration: none; }
 
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 0.1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex-wrap: wrap;
-}
-
-.nav-links a {
-  font-family: var(--font-ui);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-decoration: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  transition: color 0.15s;
-}
-.nav-links a:hover { color: var(--text); }
 
 /* ── Theme Toggle ── */
 .theme-toggle {
@@ -221,8 +200,115 @@ nav {
   padding: 0.2rem 0.45rem;
   line-height: 1;
   transition: color 0.15s, border-color 0.15s;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 .theme-toggle:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* ── Skip Link ── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.skip-link:focus { top: 0.5rem; }
+
+/* ── Focus visible ── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ── Nav search ── */
+.nav-search {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+/*
+ * Pagefind UI compact overrides for nav bar.
+ * The default UI sizes everything relative to --pagefind-ui-scale against a
+ * 64px-tall input. We pin the input to 34px and manually re-anchor the
+ * magnifying-glass ::before and the Clear button so they stay centred.
+ */
+#nav-search .pagefind-ui {
+  --pagefind-ui-scale: 0.72;
+  width: 100%;
+}
+
+/* Input: 34px tall, 1px border, site tokens */
+#nav-search .pagefind-ui__search-input {
+  height: 34px !important;
+  padding: 0 62px 0 36px !important;
+  font-size: 0.8rem !important;
+  font-weight: 400 !important;
+  border-width: 1px !important;
+  border-color: var(--border) !important;
+  border-radius: 4px !important;
+  background: var(--bg-secondary) !important;
+  color: var(--text) !important;
+}
+
+/* Magnifying glass ::before: default top = 23*scale ≈ 17px (for 46px input).
+   For a 34px input, vertically centre the 13px icon: (34-13)/2 ≈ 10px. */
+#nav-search .pagefind-ui__form::before {
+  top: 10px !important;
+  left: 12px !important;
+  width: 13px !important;
+  height: 13px !important;
+}
+
+/* Clear button: default height = 58*scale ≈ 42px, top = 3*scale ≈ 2px.
+   Constrain to fit inside the 34px input with 4px inset. */
+#nav-search .pagefind-ui__search-clear {
+  height: 26px !important;
+  top: 4px !important;
+  right: 4px !important;
+  padding: 0 8px !important;
+  font-size: 0.7rem !important;
+  border-radius: 3px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--bg) !important;
+  color: var(--text-muted) !important;
+}
+#nav-search .pagefind-ui__search-clear:hover {
+  color: var(--text) !important;
+  border-color: var(--text-muted) !important;
+}
+
+/* Results drawer: absolute overlay below the nav bar */
+#nav-search .pagefind-ui__drawer {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+[data-theme='dark'] #nav-search .pagefind-ui__drawer {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
 
 /* ── Section headings on index ── */
 .section-heading {
@@ -396,16 +482,6 @@ nav {
 
   .nav-inner { gap: 0.5rem; }
 
-  .nav-links {
-    gap: 0;
-  }
-
-  .nav-links a {
-    font-size: 0.6rem;
-    letter-spacing: 0.05em;
-    padding: 0.2rem 0.3rem;
-  }
-
   .article-title { font-size: 1.4rem; }
 
   h1 { font-size: 1.5rem; }
@@ -415,14 +491,16 @@ nav {
     padding-top: calc(var(--nav-height) + 1.25rem);
     padding-bottom: 3rem;
   }
+
+  .section-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 420px) {
   html { font-size: 15px; }
 
   .nav-title { font-size: 0.9rem; }
-
-  .nav-links a { padding: 0.2rem 0.25rem; }
 }
 
 /* Prevent any element from causing horizontal page scroll */

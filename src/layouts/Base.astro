@@ -7,7 +7,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = 'DS Notes — personal notes on computer science and related fields.' } = Astro.props;
+const { title, description = 'Synthetic Horizons — personal notes on computer science and related fields.' } = Astro.props;
 ---
 
 <!doctype html>
@@ -16,7 +16,7 @@ const { title, description = 'DS Notes — personal notes on computer science an
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <title>{title} · DS Notes</title>
+    <title>{title} · Synthetic Horizons</title>
 
     <script is:inline>
       (function () {
@@ -43,9 +43,10 @@ const { title, description = 'DS Notes — personal notes on computer science an
     />
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <Nav />
     <div class="site-wrapper">
-      <main>
+      <main id="main-content">
         <slot />
       </main>
     </div>

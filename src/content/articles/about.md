@@ -1,12 +1,12 @@
 ---
-title: "What is this site?"
+title: "Who am I?"
 section: "Personal"
-description: "A loosely collected set of notes on computer science and related fields."
+description: "An introduction to this site."
 ---
 ## 👋 Hello, I'm Damien
 
-This is a loosely collected set of notes on computer science and
-related/applicable fields of study. They are only nominally edited and primarily for my own personal use.
+This is a loosely collected set of notes and articles on computer science and
+related/applicable fields of study. Many are only nominally edited and primarily for my own personal use.
 
 Consider this quote from a [presentation][2] by Jon Sterling:
 
@@ -34,12 +34,4 @@ My independent research as a part-time graduate student sits at the intersection
 2. Distributed systems & type theory.
 3. Robotics & embedded systems.
 
-A rough collection of raw notes and presentable pieces — I hope this kind of "living book" will motivate me to keep articulating, editing, and learning indefinitely.
-
----
-
-Non-markup code adjacent to these notes lives at [github.com/damienstanton/notes](https://github.com/damienstanton/notes).
-Code is generally written in [Rust](https://rust-lang.org), [Lean](https://lean-lang.org), or [Swift](https://www.swift.org).
-
-[1]: https://ncatlab.org/nlab/show/computational+trilogy
-[2]: https://youtu.be/5kWS-umBA7k?si=Zng9Jepo-KvtN2h_
+I hope this kind of "living book" will motivate me to keep articulating, editing, and learning indefinitely.
