@@ -28,7 +28,7 @@ const url = new URL(`/${slug}`, Astro.site ?? Astro.url.origin).toString();
       <slot />
     </div>
 
-    <Comments slug={slug} title={title} url={url} />
+    <Comments title={title} url={url} />
   </article>
 
   <!-- Mermaid: only loads if page contains .mermaid divs -->
