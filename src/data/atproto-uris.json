@@ -1,5 +1,10 @@
 {
-  "publication": "",
-  "pubCreatedAt": "",
-  "documents": {}
+  "publication": "at://did:plc:bypc2xqppgppue4jadyzd3ys/site.standard.publication/3mncife5yqr2m",
+  "pubCreatedAt": "2026-06-02T11:26:55.234Z",
+  "documents": {
+    "5065": "at://did:plc:bypc2xqppgppue4jadyzd3ys/site.standard.document/5065",
+    "5414": "at://did:plc:bypc2xqppgppue4jadyzd3ys/site.standard.document/5414",
+    "bauer_algeff": "at://did:plc:bypc2xqppgppue4jadyzd3ys/site.standard.document/bauer_algeff",
+    "harper_ctt": "at://did:plc:bypc2xqppgppue4jadyzd3ys/site.standard.document/harper_ctt"
+  }
 }
