@@ -10,21 +10,21 @@ const composeUrl = `https://bsky.app/intent/compose?text=${encodeURIComponent(ti
 ---
 
 <div class="comments-section">
-  <p class="comments-heading">Comments</p>
+  <p class="comments-heading">Discuss with others</p>
   <div class="comments-actions">
     {atUri && (
       <button
         id="recommend-btn"
-        class="recommend-btn"
+        class="comments-action"
         type="button"
         data-at-uri={atUri}
         data-return-url={url}
       >
-        Recommend
+        Recommend this
       </button>
     )}
-    <a class="comments-discuss-link" href={composeUrl} target="_blank" rel="noopener noreferrer">
-      Discuss on Bluesky
+    <a class="comments-action" href={composeUrl} target="_blank" rel="noopener noreferrer">
+      Quote on Bluesky
     </a>
   </div>
 </div>
@@ -98,7 +98,7 @@ const composeUrl = `https://bsky.app/intent/compose?text=${encodeURIComponent(ti
     }
 
     function markRecommended() {
-      btn.textContent = 'Recommended ✓';
+      btn.textContent = 'Recommended this ✓';
       btn.disabled = true;
     }
   </script>
