@@ -1,6 +1,7 @@
 ---
 title: "Computational Type Theory"
 section: "Independent Study"
+date: 2026-06-02
 description: "Notes on Bob Harper's OPLSS 2018 lecture series on computational type theory."
 ---
 A lecture series given by Bob Harper at OPLSS 2018

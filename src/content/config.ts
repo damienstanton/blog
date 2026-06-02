@@ -9,6 +9,7 @@ const articles = defineCollection({
     section: z.enum(SECTIONS),
     date: z.date().optional(),
     description: z.string().optional(),
+    atproto: z.boolean().optional(),
   }),
 });
 

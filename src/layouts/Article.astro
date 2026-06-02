@@ -8,13 +8,15 @@ interface Props {
   readingTime: number;
   description?: string;
   slug: string;
+  atUri?: string;
 }
 
-const { title, section, readingTime, description, slug } = Astro.props;
+const { title, section, readingTime, description, slug, atUri } = Astro.props;
 const url = new URL(`/${slug}`, Astro.site ?? Astro.url.origin).toString();
 ---
 
 <Base title={title} description={description}>
+  {atUri && <link slot="head" rel="alternate" type="application/json+atproto" href={atUri} />}
   <article>
     <header class="article-header">
       <p class="article-section-label">{section}</p>

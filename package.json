@@ -6,20 +6,24 @@
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "atproto:sync": "node --experimental-strip-types scripts/atproto-sync.ts",
+    "atproto:sync:dry": "node --experimental-strip-types scripts/atproto-sync.ts --dry-run"
   },
   "keywords": [],
   "author": "Damien Stanton",
   "license": "ISC",
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
-    "astro": "^6.1.10",
+    "@atproto/api": "^0.20.8",
+    "astro": "^4.16.19",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.8",
+    "@types/node": "^25.9.1",
     "pagefind": "^1.5.2",
     "typescript": "^6.0.3"
   },

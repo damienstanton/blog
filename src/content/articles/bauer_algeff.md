@@ -1,6 +1,7 @@
 ---
 title: "Algebraic Effects and Handlers"
 section: "Independent Study"
+date: 2026-06-02
 description: "Notes on Andrej Bauer's work on algebraic effects and effect handlers."
 ---
 > # _Algebraic Effects and Handlers_
