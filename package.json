@@ -16,13 +16,14 @@
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
     "@atproto/api": "^0.20.8",
-    "astro": "^4.16.19",
+    "astro": "^6.4.2",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.1.0",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.8",
+    "@astrojs/check": "^0.9.9",
     "@types/node": "^25.9.1",
     "pagefind": "^1.5.2",
     "typescript": "^6.0.3"

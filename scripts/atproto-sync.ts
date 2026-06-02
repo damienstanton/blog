@@ -21,6 +21,7 @@ import { AtpAgent } from '@atproto/api';
 import { readdir, readFile, writeFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { parse as parseYaml } from 'yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -32,7 +33,7 @@ const SITE_DESCRIPTION =
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
-// ── Frontmatter parser (no external deps) ────────────────────────────────────
+// ── Frontmatter parser ───────────────────────────────────────────────────────
 
 interface ArticleMeta {
   slug: string;
@@ -42,18 +43,10 @@ interface ArticleMeta {
   atproto?: boolean;
 }
 
-function parseFrontmatter(raw: string): Record<string, string | boolean> {
-  const match = raw.match(/^---\n([\s\S]*?)\n---/);
+function parseFrontmatter(raw: string): Record<string, unknown> {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return {};
-  const result: Record<string, string | boolean> = {};
-  for (const line of match[1].split('\n')) {
-    const colon = line.indexOf(':');
-    if (colon === -1) continue;
-    const key = line.slice(0, colon).trim();
-    const val = line.slice(colon + 1).trim().replace(/^["']|["']$/g, '');
-    result[key] = val === 'true' ? true : val === 'false' ? false : val;
-  }
-  return result;
+  return parseYaml(match[1]) as Record<string, unknown>;
 }
 
 async function loadArticles(): Promise<ArticleMeta[]> {
@@ -65,11 +58,19 @@ async function loadArticles(): Promise<ArticleMeta[]> {
     const fm = parseFrontmatter(raw);
     if (fm.atproto === false) continue; // opt-out
     const slug = file.replace(/\.md$/, '');
+    // yaml parses unquoted dates as Date objects; normalise to ISO string
+    const rawDate = fm.date;
+    const dateStr =
+      rawDate instanceof Date
+        ? rawDate.toISOString().slice(0, 10)
+        : typeof rawDate === 'string'
+          ? rawDate
+          : undefined;
     articles.push({
       slug,
       title: (fm.title as string) ?? slug,
-      description: fm.description as string | undefined,
-      date: fm.date as string | undefined,
+      description: typeof fm.description === 'string' ? fm.description : undefined,
+      date: dateStr,
     });
   }
   return articles;

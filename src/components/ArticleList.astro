@@ -40,7 +40,7 @@ const sectionIds: Record<Section, string> = {
           {grouped[section].map((article) => (
             <ArticleCard
               title={article.data.title}
-              slug={article.slug}
+              slug={article.id.replace(/\.md$/, '')}
               readingTime={readingTime(article.body ?? '')}
               description={article.data.description}
             />
