@@ -5,19 +5,14 @@ interface Props {
 }
 
 const { url, title } = Astro.props;
-const searchUrl = `https://bsky.app/search?q=${encodeURIComponent(url)}`;
+// Bluesky auto-attaches a rich link card when the post text contains a URL,
+// so this opens a pre-filled compose box showing the article as an embedded card.
 const composeUrl = `https://bsky.app/intent/compose?text=${encodeURIComponent(title + '\n\n' + url)}`;
 ---
 
 <div class="comments-section">
   <p class="comments-heading">Comments</p>
-  <div class="comments-bluesky">
-    <a href={searchUrl} target="_blank" rel="noopener noreferrer">
-      View discussions on Bluesky
-    </a>
-    <span class="comments-separator">·</span>
-    <a href={composeUrl} target="_blank" rel="noopener noreferrer">
-      Post about this
-    </a>
-  </div>
+  <a class="comments-discuss-link" href={composeUrl} target="_blank" rel="noopener noreferrer">
+    Discuss on Bluesky
+  </a>
 </div>
