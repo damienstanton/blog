@@ -16,6 +16,7 @@
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
     "@atproto/api": "^0.20.8",
+    "@atproto/oauth-client-browser": "^0.4.1",
     "astro": "^6.4.2",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
