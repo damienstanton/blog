@@ -2,6 +2,7 @@
 title: "Who am I?"
 section: "Personal"
 description: "An introduction to this site."
+atproto: false
 ---
 ## 👋 Hello, I'm Damien
 

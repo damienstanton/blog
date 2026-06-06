@@ -16,6 +16,7 @@ const MIME = /** @type {Record<string, string>} */ ({
 
 export default defineConfig({
   output: 'static',
+  site: 'https://damienstanton.com',
   markdown: {
     remarkPlugins: [remarkMath, remarkMermaid],
     rehypePlugins: [rehypeKatex],

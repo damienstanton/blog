@@ -1,0 +1,77 @@
+---
+// Static page — all work happens client-side after the AT Protocol OAuth redirect.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Signing in… · Synthetic Horizons</title>
+    <style>
+      body { font-family: monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+      p { opacity: 0.6; }
+    </style>
+  </head>
+  <body>
+    <p id="status">Completing sign-in…</p>
+
+    <script>
+      import { BrowserOAuthClient } from '@atproto/oauth-client-browser';
+      import { Agent } from '@atproto/api';
+      import { CLIENT_METADATA, HANDLE_RESOLVER } from '@/lib/atproto-oauth';
+      import type { RecommendState } from '@/lib/atproto-oauth';
+
+      const status = document.getElementById('status')!;
+
+      try {
+        const client = new BrowserOAuthClient({
+          clientMetadata: CLIENT_METADATA,
+          handleResolver: HANDLE_RESOLVER,
+        });
+
+        const result = await client.init();
+
+        if (!result?.state) {
+          // No OAuth response in URL — stray navigation
+          window.location.href = '/';
+          // eslint-disable-next-line no-throw-literal
+          throw null;
+        }
+
+        const { session, state: rawState } = result;
+        const { atUri, returnUrl } = JSON.parse(rawState) as RecommendState;
+
+        status.textContent = 'Creating recommendation…';
+
+        const agent = new Agent(session);
+
+        // Idempotent: use slug-derived rkey so duplicate clicks don't stack up
+        const rkey = atUri.split('/').at(-1)!;
+
+        await agent.com.atproto.repo.createRecord({
+          repo: agent.accountDid,
+          collection: 'site.standard.graph.recommend',
+          rkey,
+          record: {
+            $type: 'site.standard.graph.recommend',
+            subject: atUri,
+            createdAt: new Date().toISOString(),
+          },
+        });
+
+        // Persist so the article page can show the confirmed state immediately
+        localStorage.setItem(`recommended:${atUri}`, agent.accountDid);
+        localStorage.setItem('atproto:did', agent.accountDid);
+
+        status.textContent = 'Recommended! Returning…';
+        window.location.href = returnUrl;
+      } catch (err) {
+        if (err !== null) {
+          console.error(err);
+          status.textContent = `Error: ${err instanceof Error ? err.message : String(err)}`;
+        }
+      }
+    </script>
+  </body>
+</html>

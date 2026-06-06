@@ -1,27 +1,105 @@
 ---
 interface Props {
-  slug: string;
-  title: string;
   url: string;
+  title: string;
+  atUri?: string;
 }
 
-const { slug, title, url } = Astro.props;
-const appId = import.meta.env.PUBLIC_CUSDIS_APP_ID;
-if (!appId) {
-  throw new Error('PUBLIC_CUSDIS_APP_ID is not set. Add it to your .env file.');
-}
+const { url, title, atUri } = Astro.props;
+const composeUrl = `https://bsky.app/intent/compose?text=${encodeURIComponent(title + '\n\n' + url)}`;
 ---
 
 <div class="comments-section">
-  <p class="comments-heading">Comments</p>
-  <div
-    id="cusdis_thread"
-    data-host="https://cusdis.com"
-    data-app-id={appId}
-    data-page-id={slug}
-    data-page-url={url}
-    data-page-title={title}
-  >
+  <p class="comments-heading">Discuss with others</p>
+  <div class="comments-actions">
+    {atUri && (
+      <button
+        id="recommend-btn"
+        class="comments-action"
+        type="button"
+        data-at-uri={atUri}
+        data-return-url={url}
+      >
+        Recommend this
+      </button>
+    )}
+    <a class="comments-action" href={composeUrl} target="_blank" rel="noopener noreferrer">
+      Quote on Bluesky
+    </a>
   </div>
-  <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
 </div>
+
+{atUri && (
+  <script>
+    import { BrowserOAuthClient } from '@atproto/oauth-client-browser';
+    import { Agent } from '@atproto/api';
+    import { CLIENT_METADATA, HANDLE_RESOLVER } from '@/lib/atproto-oauth';
+    import type { RecommendState } from '@/lib/atproto-oauth';
+
+    const btn = document.getElementById('recommend-btn') as HTMLButtonElement;
+    const atUri = btn.dataset.atUri!;
+    // data-return-url holds the canonical article URL; extract just the path
+    const returnUrl = new URL(btn.dataset.returnUrl!).pathname;
+
+    const client = new BrowserOAuthClient({
+      clientMetadata: CLIENT_METADATA,
+      handleResolver: HANDLE_RESOLVER,
+    });
+
+    // Restore any existing session on page load (does not trigger a redirect)
+    await client.init();
+
+    // Fast-path: localStorage flag set by the callback page
+    if (localStorage.getItem(`recommended:${atUri}`)) {
+      markRecommended();
+    }
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+
+      // Try to restore the last known session
+      const did = localStorage.getItem('atproto:did');
+      let session = did ? await client.restore(did).catch(() => null) : null;
+
+      if (session) {
+        // Already authenticated — create the record directly
+        await createRecommend(session);
+      } else {
+        // Kick off OAuth; signIn() redirects away so this never resolves
+        const handle = prompt('Your Bluesky handle (e.g. you.bsky.social):');
+        if (!handle) { btn.disabled = false; return; }
+
+        const state: RecommendState = { atUri, returnUrl };
+        await client.signIn(handle, { state: JSON.stringify(state) });
+      }
+    });
+
+    async function createRecommend(session: Awaited<ReturnType<typeof client.restore>>) {
+      try {
+        const agent = new Agent(session!);
+        const rkey = atUri.split('/').at(-1)!;
+        await agent.com.atproto.repo.createRecord({
+          repo: agent.accountDid,
+          collection: 'site.standard.graph.recommend',
+          rkey,
+          record: {
+            $type: 'site.standard.graph.recommend',
+            subject: atUri,
+            createdAt: new Date().toISOString(),
+          },
+        });
+        localStorage.setItem(`recommended:${atUri}`, agent.accountDid);
+        localStorage.setItem('atproto:did', agent.accountDid);
+        markRecommended();
+      } catch (err) {
+        console.error('Recommend failed:', err);
+        btn.disabled = false;
+      }
+    }
+
+    function markRecommended() {
+      btn.textContent = 'Recommended this ✓';
+      btn.disabled = true;
+    }
+  </script>
+)}
